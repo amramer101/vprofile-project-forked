@@ -7,10 +7,9 @@ pipeline{
 
     environment {
         NEXUS_VERSION       = "nexus3"
-        SNAP-REPO           = "vprofile-snapshot"
-        NEXUS-USER          = "admin"
-        NEXUS-PASS          = "admin123"
-        CENTRAL-REPO        = "vprofile-maven-central"
+        NEXUS_USER          = "admin"
+        NEXUS_PASS          = "admin123"
+        CENTRAL_REPO        = "vprofile-maven-central"
         NEXUSIP             = "54.93.63.35"
         NEXUSPORT           = "8081"
         NEXUS_REPOSITORY    = "vprofile-release"
