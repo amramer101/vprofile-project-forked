@@ -17,7 +17,8 @@ pipeline{
         NEXUS_GRP_REPO      = "vprofile-group"
         NEXUS_CREDENTIAL_ID = "nexuslogin"
         ARTVERSION          = "${env.BUILD_ID}"
-    }
+        SONARSERVER = 'sonarserver'
+        SONARSCANNER = 'sonarscanner'    }
 
     stages{
         stage("Build"){
@@ -43,8 +44,26 @@ pipeline{
             steps{
                 sh 'mvn checkstyle:checkstyle'
             }
-        } // <-- القوس ده كان ناقص (عشان يقفل الـ stage)
+        } 
 
-    } // <-- القوس ده بيقفل الـ stages
+        stage('Sonar Analysis') {
+            environment {
+                scannerHome = tool "${SONARSCANNER}"
+            }
+            steps {
+               withSonarQubeEnv("${SONARSERVER}") {
+                   sh '''${scannerHome}/bin/sonar-scanner -Dsonar.projectKey=vprofile \
+                   -Dsonar.projectName=vprofile \
+                   -Dsonar.projectVersion=1.0 \
+                   -Dsonar.sources=src/ \
+                   -Dsonar.java.binaries=target/test-classes/com/visualpathit/account/controllerTest/ \
+                   -Dsonar.junit.reportsPath=target/surefire-reports/ \
+                   -Dsonar.jacoco.reportsPath=target/jacoco.exec \
+                   -Dsonar.java.checkstyle.reportPaths=target/checkstyle-result.xml'''
+              }
+            }
+        }
+
+    } 
     
-} // <-- القوس ده بيقفل الـ pipeline
+}
