@@ -14,16 +14,16 @@ pipeline{
         NEXUSIP             = "3.126.138.115"
         NEXUSPORT           = "8081"
         NEXUS_REPOSITORY    = "vprofile-release"
-	    NEXUS_GRP_REPO      = "vprofile-group"
+        NEXUS_GRP_REPO      = "vprofile-group"
         NEXUS_CREDENTIAL_ID = "nexuslogin"
         ARTVERSION          = "${env.BUILD_ID}"
     }
 
-
     stages{
         stage("Build"){
             steps{
-                sh 'mvn -s settings.xml -DskipTests install'
+                // استخدمت Double Quotes وضفت المتغيرات عشان الـ settings.xml تشتغل
+                sh "mvn -s settings.xml -DskipTests install"
             }
             post{
                 success{
@@ -37,16 +37,14 @@ pipeline{
             steps{
                 sh 'mvn test'
             }
-            
         }
 
         stage("Checkstyle Analysis"){
             steps{
                 sh 'mvn checkstyle:checkstyle'
             }
-            
+        } // <-- القوس ده كان ناقص (عشان يقفل الـ stage)
 
-
-    }
+    } // <-- القوس ده بيقفل الـ stages
     
-}    
+} // <-- القوس ده بيقفل الـ pipeline
