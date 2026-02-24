@@ -17,22 +17,27 @@ pipeline{
         NEXUS_GRP_REPO      = "vprofile-group"
         NEXUS_CREDENTIAL_ID = "nexuslogin"
         ARTVERSION          = "${env.BUILD_ID}"
-        SONARSERVER = 'sonarserver'
-        SONARSCANNER = 'sonarscanner'    }
+        SONARSERVER         = "sonarserver"
+        SONARSCANNER        = "sonarscanner"
+    }
 
-
+    stages{
+        // 1. مرحلة الاختبار الأولية
         stage("Test"){
             steps{
-                sh 'mvn test'
+                // بنعمل كومبايل واختبار من غير ما نعمل war
+                sh "mvn test"
             }
         }
 
+        // 2. تحليل الكود بالـ Checkstyle
         stage("Checkstyle Analysis"){
             steps{
-                sh 'mvn checkstyle:checkstyle'
+                sh "mvn checkstyle:checkstyle"
             }
         } 
 
+        // 3. تحليل الكود بالسونار كيوب
         stage('Sonar Analysis') {
             environment {
                 scannerHome = tool "${SONARSCANNER}"
@@ -51,21 +56,20 @@ pipeline{
             }
         }
 
+        // 4. بوابة الجودة (لو الكود سيء البايبلاين هيقف هنا)
         stage("Quality Gate") {
             steps {
                 timeout(time: 1, unit: 'HOURS') {
-                    // Parameter indicates whether to set pipeline to UNSTABLE if Quality Gate fails
-                    // true = set pipeline to UNSTABLE, false = don't
                     waitForQualityGate abortPipeline: true
                 }
             }
         }
 
-
-        stages{
-        stage("Build"){
+        // 5. التجميع والأرشفة (هنا بس نعمل الـ war بعد ما اتأكدنا ان الكود سليم)
+        stage("Package & Archive Artifacts"){
             steps{
-                sh "mvn -s settings.xml -DskipTests install"
+                // بنستخدم package وبنتجاهل الـ tests لأننا عملناها فوق خلاص
+                sh "mvn -s settings.xml -DskipTests package"
             }
             post{
                 success{
@@ -74,7 +78,5 @@ pipeline{
                 }
             }
         }
-
     } 
-    
 }
