@@ -11,7 +11,7 @@ pipeline{
         NEXUS_USER          = "admin"
         NEXUS_PASS          = "admin123"
         CENTRAL_REPO        = "vprofile-maven-central"
-        NEXUSIP             = "63.178.240.164"
+        NEXUSIP             = "10.0.1.110"
         NEXUSPORT           = "8081"
         NEXUS_REPOSITORY    = "vprofile-release"
         NEXUS_GRP_REPO      = "vprofile-group"
@@ -22,22 +22,18 @@ pipeline{
     }
 
     stages{
-        // 1. مرحلة الاختبار الأولية
         stage("Test"){
             steps{
-                // بنعمل كومبايل واختبار من غير ما نعمل war
                 sh "mvn test"
             }
         }
 
-        // 2. تحليل الكود بالـ Checkstyle
         stage("Checkstyle Analysis"){
             steps{
                 sh "mvn checkstyle:checkstyle"
             }
         } 
 
-        // 3. تحليل الكود بالسونار كيوب
         stage('Sonar Analysis') {
             environment {
                 scannerHome = tool "${SONARSCANNER}"
@@ -56,7 +52,6 @@ pipeline{
             }
         }
 
-        // 4. بوابة الجودة (لو الكود سيء البايبلاين هيقف هنا)
         stage("Quality Gate") {
             steps {
                 timeout(time: 1, unit: 'HOURS') {
@@ -65,10 +60,8 @@ pipeline{
             }
         }
 
-        // 5. التجميع والأرشفة (هنا بس نعمل الـ war بعد ما اتأكدنا ان الكود سليم)
         stage("Package & Archive Artifacts"){
             steps{
-                // بنستخدم package وبنتجاهل الـ tests لأننا عملناها فوق خلاص
                 sh "mvn -s settings.xml -DskipTests package"
             }
             post{
@@ -76,6 +69,27 @@ pipeline{
                     echo "Archiving Artifacts .." 
                     archiveArtifacts artifacts: '**/*.war'
                 }
+            }
+        }
+
+
+        stage("UploadArtifact"){
+            steps{
+                nexusArtifactUploader(
+                  nexusVersion: 'nexus3',
+                  protocol: 'http',
+                  nexusUrl: "${NEXUSIP}:${NEXUSPORT}",
+                  groupId: 'QA',
+                  version: "${env.BUILD_ID}-${env.BUILD_TIMESTAMP}",
+                  repository: "${RELEASE_REPO}",
+                  credentialsId: "${NEXUS_LOGIN}",
+                  artifacts: [
+                    [artifactId: 'vproapp',
+                     classifier: '',
+                     file: 'target/vprofile-v2.war',
+                     type: 'war']
+                  ]
+                )
             }
         }
     } 
