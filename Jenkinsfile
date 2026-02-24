@@ -81,8 +81,8 @@ pipeline{
                   nexusUrl: "${NEXUSIP}:${NEXUSPORT}",
                   groupId: 'QA',
                   version: "${env.BUILD_ID}-${env.BUILD_TIMESTAMP}",
-                  repository: "${RELEASE_REPO}",
-                  credentialsId: "${NEXUS_LOGIN}",
+                  repository: "${NEXUS_REPOSITORY}",
+                  credentialsId: "${NEXUS_CREDENTIAL_ID}",
                   artifacts: [
                     [artifactId: 'vproapp',
                      classifier: '',
