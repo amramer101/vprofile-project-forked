@@ -11,7 +11,7 @@ pipeline{
         NEXUS_USER          = "admin"
         NEXUS_PASS          = "admin123"
         CENTRAL_REPO        = "vprofile-maven-central"
-        NEXUSIP             = "3.126.138.115"
+        NEXUSIP             = "63.178.240.164"
         NEXUSPORT           = "8081"
         NEXUS_REPOSITORY    = "vprofile-release"
         NEXUS_GRP_REPO      = "vprofile-group"
@@ -23,7 +23,6 @@ pipeline{
     stages{
         stage("Build"){
             steps{
-                // استخدمت Double Quotes وضفت المتغيرات عشان الـ settings.xml تشتغل
                 sh "mvn -s settings.xml -DskipTests install"
             }
             post{
