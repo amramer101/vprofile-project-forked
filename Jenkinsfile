@@ -20,18 +20,6 @@ pipeline{
         SONARSERVER = 'sonarserver'
         SONARSCANNER = 'sonarscanner'    }
 
-    stages{
-        stage("Build"){
-            steps{
-                sh "mvn -s settings.xml -DskipTests install"
-            }
-            post{
-                success{
-                    echo "Archiving Artifacts .." 
-                    archiveArtifacts artifacts: '**/*.war'
-                }
-            }
-        }
 
         stage("Test"){
             steps{
@@ -69,6 +57,20 @@ pipeline{
                     // Parameter indicates whether to set pipeline to UNSTABLE if Quality Gate fails
                     // true = set pipeline to UNSTABLE, false = don't
                     waitForQualityGate abortPipeline: true
+                }
+            }
+        }
+
+
+        stages{
+        stage("Build"){
+            steps{
+                sh "mvn -s settings.xml -DskipTests install"
+            }
+            post{
+                success{
+                    echo "Archiving Artifacts .." 
+                    archiveArtifacts artifacts: '**/*.war'
                 }
             }
         }
